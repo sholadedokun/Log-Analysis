@@ -15,7 +15,7 @@ create view topAuthors as select articles.author, sum(topArticles.count) as SumO
 
 create view logsperday as select date_trunc('day', time) as day ,  count(*) totalHit from log  group by day;
 
-create view errorPerDay as select date_trunc('day', time) as day , count(*) error_count from log where status='404 NOT FOUND'  group by day;
+create view errorsPerDay as select date_trunc('day', time) as day , count(*) error_count from log where status='404 NOT FOUND'  group by day;
 ```
 ## Run the code.
 `python logsDB.py`
