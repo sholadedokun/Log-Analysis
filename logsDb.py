@@ -14,11 +14,14 @@ def get_mostPopularArticles():
     db = psycopg2.connect(database=Dbase)
     cursor = db.cursor()
     cursor.execute(
-      '''
-      select articles.title, topArticles.count
-        from articles join topArticles on articles.slug = topArticles.title
-        order by topArticles.count desc limit 3
-      '''
+      """
+      SELECT articles.title, topArticles.count
+      FROM articles
+      JOIN topArticles
+      ON articles.slug = topArticles.title
+      ORDER BY topArticles.count DESC
+      LIMIT 3
+      """
     )
     topArticles = cursor.fetchall()
     db.close()
@@ -33,12 +36,14 @@ def get_mostPopularAuthor():
     db = psycopg2.connect(database=Dbase)
     cursor = db.cursor()
     cursor.execute(
-      '''
-      select authors.name, topAuthors.sumofhits
-        from authors join topAuthors
-        on authors.id=topAuthors.author
-        order by topAuthors.sumofhits desc limit 3
-      '''
+      """
+      SELECT authors.name, topAuthors.sumofhits
+      FROM authors
+      JOIN topAuthors
+      ON authors.id=topAuthors.author
+      ORDER by topAuthors.sumofhits DESC
+      LIMIT 3
+      """
       )
     topAuthors = cursor.fetchall()
     db.close()
@@ -53,23 +58,24 @@ def get_errorDayAbovePercentage(percentValue):
     db = psycopg2.connect(database=Dbase)
     cursor = db.cursor()
     cursor.execute(
-      '''
-      select
-        to_char(day, 'FMMonth DD, YYYY'),
-        concat(round(error_percent::DECIMAL, 2), '%%') as percent_error
-        from (
-          select a.day as day,
-            (
-              (b.error_count::float/a.totalHit::float)*100::float
-            )
-            as error_percent
-            from LogsPerDay as a, errorsPerDay as b
-            where a.day=b.day
-        ) as subQuery
-        where error_percent >%d
-        order by error_percent desc;
-      '''
-      % (percentValue)
+        """
+        SELECT
+            to_char(day, 'FMMonth DD, YYYY'),
+            CONCAT(ROUND(error_percent::DECIMAL, 2), '%%') as percent_error
+        FROM (
+            SELECT a.day as day,
+                (
+                     (b.error_count::float/a.totalHit::float)*100::float
+                )
+            AS error_percent
+            FROM LogsPerDay as a, errorsPerDay as b
+            WHERE a.day=b.day
+        ) AS subQuery
+        WHERE error_percent >%d
+        ORDER BY error_percent DESC
+        LIMIT 3;
+        """
+        % (percentValue)
     )
     mostErrorDay = cursor.fetchall()
     db.close()
